@@ -1,2 +1,2 @@
 # small-projects
-little projects coded in Python
+projects coded in Python

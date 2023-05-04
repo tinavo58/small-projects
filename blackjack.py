@@ -80,134 +80,137 @@ def deductFromBal(amt):
     BALANCE -= amt
     print(f'\nDealer won! You lost ${amt:,}')
 
-
-#-------------------------------------------------------------------------
-rules = """
-Welcome to Blackjack!
-
-Rules:
-    .Try to get as close to 21 without going over.
-
-    .Kings, Queens and Jacks are with 10 points.
-    .Aces are worth 1 or 11 points.
-    .Cards 2 through 10 are worth their face value.
-
-    .(H)it to take another card.
-    .(S)tand to stop taking cards.
-    .On your first play, you can (D)ouble down to increase your bet
-    but must hit exactly one more time before standing.
-
-    .In case of a tie, the bet is returned to the player.
-    .The dealer stops hitting at 17.
-
-"""
-
 deck = getDeck()
 BALANCE = 5_000
 
-print(rules)
+def main():
+    rules = """
+    Welcome to Blackjack!
 
-while len(deck) > 9: # assume 5 each for player and dealer
+    Rules:
+        .Try to get as close to 21 without going over.
 
-    # check if BALANCE is > 0
-    if BALANCE < 1:
-        print(f"\nYour current balance: ${BALANCE:,}")
-        print('You have insufficinet balance to continure playing.')
-        time.sleep(3)
-        sys.exit()
+        .Kings, Queens and Jacks are with 10 points.
+        .Aces are worth 1 or 11 points.
+        .Cards 2 through 10 are worth their face value.
 
-    print('\n'+ '=' * 35)
-    print(f"\nYour current balance: ${BALANCE:,}")
+        .(H)it to take another card.
+        .(S)tand to stop taking cards.
+        .On your first play, you can (D)ouble down to increase your bet
+        but must hit exactly one more time before standing.
 
-    if BALANCE == 1:
-        print(f"\nHow much do you want to bet? ($1 or 'q' to quit)")
-    else:
-        print(f"\nHow much do you want to bet? ($1 - ${BALANCE:,} or 'q' to quit)")
+        .In case of a tie, the bet is returned to the player.
+        .The dealer stops hitting at 17.
 
-    while True:
-        bet = input('> ')
+    """
 
-        if bet.lower() == 'q':
+    print(rules)
+
+    while len(deck) > 9: # assume 5 each for player and dealer
+
+        # check if BALANCE is > 0
+        if BALANCE < 1:
+            print(f"\nYour current balance: ${BALANCE:,}")
+            print('You have insufficinet balance to continure playing.')
+            time.sleep(3)
             sys.exit()
 
-        # check if bet is valid
-        # 1st check if input could be converted into a number with no decimal
-        # before checking the condition
-        if bet.isdecimal():
-            if int(bet) > BALANCE:
-                print("Your balance is insufficient.\n")
-            elif 0 < int(bet) <= BALANCE:
-                bet = int(bet)
-                printBetAmount(bet)
-                break
+        print('\n'+ '=' * 35)
+        print(f"\nYour current balance: ${BALANCE:,}")
 
-    # dealer cards
-    dealer_cards = [deck.pop(), deck.pop()]
-    dealer_total = total_rank(dealer_cards)
-    showCardsValue()
-    drawCards(dealer_cards[1:], template=hidden_card_template)
+        if BALANCE == 1:
+            print(f"\nHow much do you want to bet? ($1 or 'q' to quit)")
+        else:
+            print(f"\nHow much do you want to bet? ($1 - ${BALANCE:,} or 'q' to quit)")
 
-    # player cards
-    player_cards = [deck.pop(), deck.pop()]
-    player_total = total_rank(player_cards)
-    displayInfo(player_cards, 'player')
+        while True:
+            bet = input('> ')
 
-    player_choice = []
+            if bet.lower() == 'q':
+                sys.exit()
 
-    while player_total < 21:
-        print("\n(H)it, (S)tand, (D)ouble down")
-        selection = ""
-        while selection not in ['H', 'S', 'D']:
-            selection = input('> ').upper()
+            # check if bet is valid
+            # 1st check if input could be converted into a number with no decimal
+            # before checking the condition
+            if bet.isdecimal():
+                if int(bet) > BALANCE:
+                    print("Your balance is insufficient.\n")
+                elif 0 < int(bet) <= BALANCE:
+                    bet = int(bet)
+                    printBetAmount(bet)
+                    break
 
-        player_choice.append(selection)
+        # dealer cards
+        dealer_cards = [deck.pop(), deck.pop()]
+        dealer_total = total_rank(dealer_cards)
+        showCardsValue()
+        drawCards(dealer_cards[1:], template=hidden_card_template)
 
-        if selection == "H":
-            hitCard(player_cards)
-            player_total = total_rank(player_cards)
-            displayInfo(player_cards, 'player')
+        # player cards
+        player_cards = [deck.pop(), deck.pop()]
+        player_total = total_rank(player_cards)
+        displayInfo(player_cards, 'player')
 
-        elif selection == 'D':
-            if bet * 2 > BALANCE:
-                print("You are unable to (D)ouble due to insufficient balance.")
-                player_choice.pop()
-            elif not len(player_choice) > 1:
-                bet *= 2
-                printBetAmount(bet)
-            else:
-                print("You can only (D)ouble once when the 1st two cards were drawn.")
+        player_choice = []
 
-        elif selection == 'S':
-            if len(player_choice) > 1 and player_choice[0] == 'D' and not player_choice[1] == 'H':
-                print("You need to (H)it after (D)ouble.")
-            else:
+        while player_total < 21:
+            print("\n(H)it, (S)tand, (D)ouble down")
+            selection = ""
+            while selection not in ['H', 'S', 'D']:
+                selection = input('> ').upper()
+
+            player_choice.append(selection)
+
+            if selection == "H":
+                hitCard(player_cards)
+                player_total = total_rank(player_cards)
                 displayInfo(player_cards, 'player')
-                break
+
+            elif selection == 'D':
+                if bet * 2 > BALANCE:
+                    print("You are unable to (D)ouble due to insufficient balance.")
+                    player_choice.pop()
+                elif not len(player_choice) > 1:
+                    bet *= 2
+                    printBetAmount(bet)
+                else:
+                    print("You can only (D)ouble once when the 1st two cards were drawn.")
+
+            elif selection == 'S':
+                if len(player_choice) > 1 and player_choice[0] == 'D' and not player_choice[1] == 'H':
+                    print("You need to (H)it after (D)ouble.")
+                else:
+                    displayInfo(player_cards, 'player')
+                    break
+
+            print()
+
+        while dealer_total < 17: # regardless if player is busted
+            hitCard(dealer_cards, who='dealer')
+            dealer_total = total_rank(dealer_cards)
 
         print()
+        print('-' * 35)
 
-    while dealer_total < 17: # regardless if player is busted
-        hitCard(dealer_cards, who='dealer')
-        dealer_total = total_rank(dealer_cards)
+        displayInfo(dealer_cards)
+        displayInfo(player_cards, 'player')
 
-    print()
-    print('-' * 35)
+        if dealer_total == player_total or\
+            (player_total > 21 and dealer_total > 21):
+            print(f"\nNo one won!")
+        elif (dealer_total > 21 or player_total > dealer_total)\
+            and player_total <=21:
+            addToBal(bet)
+        else: # dealer <=21
+            if player_total > 21 or player_total < dealer_total:
+                deductFromBal(bet)
 
-    displayInfo(dealer_cards)
-    displayInfo(player_cards, 'player')
+        time.sleep(3)
+        os.system('clear')
 
-    if dealer_total == player_total or\
-        (player_total > 21 and dealer_total > 21):
-        print(f"\nNo one won!")
-    elif (dealer_total > 21 or player_total > dealer_total)\
-        and player_total <=21:
-        addToBal(bet)
-    else: # dealer <=21
-        if player_total > 21 or player_total < dealer_total:
-            deductFromBal(bet)
+    print("Not enough cards in the deck!")
+    print(f"\nYour current balance: ${BALANCE:,}")
 
-    time.sleep(5)
-    os.system('clear')
 
-print("Not enough cards in the deck!")
-print(f"\nYour current balance: ${BALANCE:,}")
+if __name__ == '__main__':
+    main()

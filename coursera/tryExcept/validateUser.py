@@ -33,8 +33,8 @@ class TestValidateUser(unittest.TestCase):
 
 
     def test_empty_list(self):
-        with self.assertRaises(AssertionError, msg="username must be a string"):
-            self.assertFalse(validateUser([], 1))
+        # without using context manager
+        self.assertRaises(AssertionError, validateUser, [], 1) # msg can't be called
 
 
     def test_empty_list(self):

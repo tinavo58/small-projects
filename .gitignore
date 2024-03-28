@@ -5,3 +5,5 @@ demoproject/
 myproject/
 .pytest_cache/
 mysql-learning/
+*.txt
+*.csv

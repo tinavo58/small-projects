@@ -7,3 +7,4 @@ myproject/
 mysql-learning/
 *.txt
 *.csv
+.env

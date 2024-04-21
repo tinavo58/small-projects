@@ -11,33 +11,45 @@ config = {
     "password": os.getenv('PASSWORD')
 }
 
-file = '~/Downloads/milk_production.csv'
+honey = 'honey_production' # only this table has 4 fields (no Period)
 
 
 def main():
-    # read file into df
-    df =  pd.read_csv(file)
-    df = df.fillna(0)
+    tables = [
+        'yogurt_production',
+        'milk_production',
+        'egg_production',
+        'coffee_production',
+        'cheese_production'
+    ]
+    for table in tables:
 
-    # extract data into list of tuples
-    data  = list(df.itertuples(index=False))
+        file = f'~/Downloads/{table}.csv'
 
-    # query statement
-    query = "insert into milk_prod values (%s, %s, %s, %s, %s)"
+        # read file into df
+        df =  pd.read_csv(file, na_values={"Value": [" (NA)", " (D)"]})
+        df = df.fillna(0)
 
-    with connect(**config) as conn:
+        # extract data into list of tuples
+        data  = list(df.itertuples(index=False))
 
-        if conn.is_connected():
-            print('connected')
+        # query statement
+        query = f"insert into {table} values (%s, %s, %s, %s, %s)"
 
-        with conn.cursor(buffered=True) as cur:
+        with connect(**config) as conn:
 
-            cur.executemany(query, data)
-            conn.commit()
-            print('records inserted...')
+            if conn.is_connected():
+                print('connected')
 
-            cur.execute('select * from milk_prod limit 5;')
-            print(cur.fetchall())
+            with conn.cursor(buffered=True) as cur:
+                cur.execute(f'truncate table {table}')
+
+                cur.executemany(query, data)
+                conn.commit()
+                print('records inserted...')
+
+                cur.execute(f'select * from {table} limit 5;')
+                print(cur.fetchall())
 
 
 if __name__ == "__main__":

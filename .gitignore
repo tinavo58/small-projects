@@ -8,3 +8,6 @@ mysql-learning/
 *.txt
 *.csv
 .env
+data-analysis-python-ibm/
+data-analyst-projects/
+sql-questions/

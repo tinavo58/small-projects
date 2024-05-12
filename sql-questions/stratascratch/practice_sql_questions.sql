@@ -311,4 +311,56 @@ from winemag_p1
 where lower(description) regexp '(plum|rose|cherry|hazelnut)([^a-z])';
 ### [^a-z] would ignore lowercase letter
 
+/*
+calc median of a dataset
+*/
+create table exams
+with recursive num (n) as (
+	select 1
+    union all
+    select n + 1
+    from num
+    where n < 8
+	)
+select n from num;
 
+show columns from exams;
+
+alter table exams
+change n id int,
+add score int;
+
+update exams
+set score = round(rand() * 100);
+	
+select * from exams order by score;
+
+select
+	avg(score)
+    ,@rn := @rn + 1 as rn
+    ,@rn / 2
+    ,(@rn / 2) + 1
+--     ,@n_rows := @rn as n_rows ### similar to recursive
+--     ,floor((@n_rows + 1) / 2) as `using_floor1`
+--     ,floor((@rn + 1) / 2) as `rn_floor1`
+--     ,floor((@n_rows + 2) / 2) as `using_floor2`
+from exams, (select @rn := 0) t
+where @rn in (floor(((@rn:=@rn+1) + 1)/2), floor(((@rn:=@rn+1) + 2)/2))
+-- where @rn between @rn / 2.0 and (@rn / 2.0) + 1 # @rn needs to be assigned with new value
+order by score;
+
+with cte as (
+	select
+		score
+        ,row_number() over (order by score) rn
+        ,(select count(*) from exams) total
+	from exams
+    )
+select
+	avg(score)
+from cte
+where rn between total / 2 and total / 2 + 1;
+
+select (67 + 72) / 2;
+
+select count(1) from exams;
